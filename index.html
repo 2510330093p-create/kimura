@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高校受験英単語 高速基礎マスター</title>
+  <style>
+    :root {
+      --primary-color: #0056b3;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      padding: 30px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--primary-color);
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button.btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button.btn:hover {
+      background-color: #003d80;
+    }
+
+    button.btn:active {
+      transform: scale(0.98);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary-color);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .word-display {
+      font-size: 36px;
+      font-weight: bold;
+      color: #333;
+      margin: 25px 0;
+      min-height: 50px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-btn {
+      background-color: #f8f9fa;
+      border: 2px solid #dee2e6;
+      color: #333;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      word-break: break-all;
+    }
+
+    .option-btn:hover {
+      background-color: #e9ecef;
+      border-color: #ced4da;
+    }
+
+    .option-btn.correct {
+      background-color: var(--success-color) !important;
+      color: white !important;
+      border-color: var(--success-color) !important;
+    }
+
+    .option-btn.incorrect {
+      background-color: var(--danger-color) !important;
+      color: white !important;
+      border-color: var(--danger-color) !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 27px;
+    }
+
+    .feedback.correct { color: var(--success-color); }
+    .feedback.incorrect { color: var(--danger-color); }
+
+    .score-display {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 20px 0;
+    }
+
+    .hide {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- 1. 設定画面 -->
+    <div id="start-screen">
+      <h1>高校受験英単語<br>高速基礎マスター</h1>
+      <p class="subtitle">問題数を選んでスタートしてください</p>
+      <div class="btn-group">
+        <button class="btn" onclick="startGame(10)">10 問コース（サクッと挑戦）</button>
+        <button class="btn" onclick="startGame(50)">50 問コース（しっかり特訓）</button>
+        <button class="btn" onclick="startGame(100)">100 問コース（限界突破）</button>
+      </div>
+    </div>
+
+    <!-- 2. テスト画面 -->
+    <div id="quiz-screen" class="hide">
+      <div style="display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 5px;">
+        <span id="question-count">第 1 / 10 問</span>
+        <span id="score-counter">正解: 0</span>
+      </div>
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <div id="word-display" class="word-display">apple</div>
+
+      <div id="options-container" class="options-grid">
+        <!-- 6つの選択肢がここに動的生成される -->
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- 3. 結果画面 -->
+    <div id="result-screen" class="hide">
+      <h1>トレーニング終了！</h1>
+      <p class="subtitle">お疲れ様でした！結果は以下の通りです。</p>
+      <div id="score-display" class="score-display">0 / 10</div>
+      <p id="accuracy-display" style="font-size: 18px; color: #555;"></p>
+      <div class="btn-group" style="margin-top: 30px;">
+        <button class="btn" onclick="showStartScreen()">もう一度挑戦する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 高校受験必須単語データベース（約120語のサンプルデータを内蔵。必要に応じて追加可能）
+    const WORD_DATABASE = [
+      { en: "able", ja: "〜できる" }, { en: "accept", ja: "を受け入れる" }, { en: "accident", ja: "事故" },
+      { en: "achieve", ja: "を達成する" }, { en: "across", ja: "〜を横切って" }, { en: "act", ja: "行動する" },
+      { en: "action", ja: "行動" }, { en: "active", ja: "積極的な" }, { en: "activity", ja: "活動" },
+      { en: "actor", ja: "俳優" }, { en: "add", ja: "を加える" }, { en: "address", ja: "住所" },
+      { en: "admire", ja: "に感心する" }, { en: "advantage", ja: "有利な点" }, { en: "advice", ja: "助言" },
+      { en: "advise", ja: "に助言する" }, { en: "afford", ja: "〜する余裕がある" }, { en: "afraid", ja: "恐れて" },
+      { en: "agree", ja: "同意する" }, { en: "allow", ja: "を許す" }, { en: "almost", ja: "ほとんど" },
+      { en: "alone", ja: "一人の" }, { en: "already", ja: "すでに" }, { en: "also", ja: "〜もまた" },
+      { en: "although", ja: "〜だけれども" }, { en: "always", ja: "いつも" }, { en: "ancient", ja: "古代の" },
+      { en: "anger", ja: "怒り" }, { en: "angry", ja: "怒った" }, { en: "announce", ja: "を発表する" },
+      { en: "another", ja: "もう一つの" }, { en: "answer", ja: "答え" }, { en: "anxious", ja: "心配して" },
+      { en: "appear", ja: "現れる" }, { en: "area", ja: "地域・面積" }, { en: "argue", ja: "と主張する" },
+      { en: "arrive", ja: "到着する" }, { en: "article", ja: "記事" }, { en: "artist", ja: "芸術家" },
+      { en: "asleep", ja: "眠って" }, { en: "attend", ja: "に出席する" }, { en: "attention", ja: "注意" },
+      { en: "attitude", ja: "態度" }, { en: "attract", ja: "を引きつける" }, { en: "audience", ja: "観客" },
+      { en: "author", ja: "著者" }, { en: "available", ja: "利用できる" }, { en: "avoid", ja: "を避ける" },
+      { en: "beautiful", ja: "美しい" }, { en: "become", ja: "〜になる" }, { en: "before", ja: "〜の前に" },
+      { en: "begin", ja: "始まる" }, { en: "behavior", ja: "行動" }, { en: "behind", ja: "〜の後ろに" },
+      { en: "believe", ja: "を信じる" }, { en: "belong", ja: "所属する" }, { en: "between", ja: "〜の間に" },
+      { en: "beyond", ja: "〜を越えて" }, { en: "borrow", ja: "を借りる" }, { en: "brave", ja: "勇敢な" },
+      { en: "bright", ja: "明るい" }, { en: "bring", ja: "を持ってくる" }, { en: "build", ja: "を建てる" },
+      { en: "business", ja: "仕事・ビジネス" }, { en: "busy", ja: "忙しい" }, { en: "camera", ja: "カメラ" },
+      { en: "capital", ja: "首都" }, { en: "careful", ja: "注意深い" }, { en: "carry", ja: "を運ぶ" },
+      { en: "catch", ja: "をつかまえる" }, { en: "cause", ja: "の原因となる" }, { en: "celebrate", ja: "を祝う" },
+      { en: "century", ja: "世紀" }, { en: "certain", ja: "確信して" }, { en: "chance", ja: "機会・チャンス" },
+      { en: "change", ja: "を変える" }, { en: "character", ja: "性格・登場人物" }, { en: "cheap", ja: "安い" },
+      { en: "check", ja: "を点検する" }, { en: "choice", ja: "選択" }, { en: "choose", ja: "を選ぶ" },
+      { en: "church", ja: "教会" }, { en: "citizen", ja: "市民" }, { en: "clever", ja: "利口な" },
+      { en: "climate", ja: "気候" }, { en: "collect", ja: "を集める" }, { en: "college", ja: "大学" },
+      { en: "common", ja: "共通の・普通の" }, { en: "company", ja: "会社" }, { en: "compare", ja: "を比較する" },
+      { en: "complete", ja: "完全な・を完成させる" }, { en: "condition", ja: "状態・条件" }, { en: "connect", ja: "をつなぐ" },
+      { en: "consider", ja: "をよく考える" }, { en: "continue", ja: "を続ける" }, { en: "control", ja: "を支配する" },
+      { en: "convenient", ja: "便利な" }, { en: "create", ja: "を創造する" }, { en: "crowded", ja: "混雑した" },
+      { en: "culture", ja: "文化" }, { en: "curious", ja: "好奇心が強い" }, { en: "custom", ja: "習慣" },
+      { en: "damage", ja: "損害" }, { en: "dangerous", ja: "危険な" }, { en: "decide", ja: "を決める" },
+      { en: "decision", ja: "決定" }, { en: "deep", ja: "深い" }, { en: "delicious", ja: "おいしい" },
+      { en: "deliver", ja: "を配達する" }, { en: "demand", ja: "を要求する" }, { en: "depend", ja: "頼る・〜次第である" },
+      { en: "describe", ja: "を描写する" }, { en: "design", ja: "を設計する" }, { en: "destroy", ja: "を破壊する" },
+      { en: "develop", ja: "を発達させる" }, { en: "different", ja: "異なる" }, { en: "difficult", ja: "難しい" },
+      { en: "discover", ja: "を発見する" }, { en: "discuss", ja: "について話し合う" }, { en: "disease", ja: "病気" }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let totalQuestions = 10;
+    let isAnswering = false;
+
+    // 配列のシャッフル（Fisher-Yates法）
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ゲーム開始処理
+    function startGame(numQuestions) {
+      totalQuestions = Math.min(numQuestions, WORD_DATABASE.length);
+      const shuffledDB = shuffle(WORD_DATABASE);
+      currentQuestions = shuffledDB.slice(0, totalQuestions);
+
+      currentIndex = 0;
+      score = 0;
+
+      document.getElementById('start-screen').classList.add('hide');
+      document.getElementById('result-screen').classList.add('hide');
+      document.getElementById('quiz-screen').classList.remove('hide');
+
+      showQuestion();
+    }
+
+    // 問題の表示
+    function showQuestion() {
+      isAnswering = true;
+      document.getElementById('feedback').innerText = '';
+      document.getElementById('feedback').className = 'feedback';
+
+      const currentWord = currentQuestions[currentIndex];
+
+      // カウンターとプログレスバーの更新
+      document.getElementById('question-count').innerText = `第 ${currentIndex + 1} / ${totalQuestions} 問`;
+      document.getElementById('score-counter').innerText = `正解: ${score}`;
+      const progressPercent = (currentIndex / totalQuestions) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      // 英単語の表示
+      document.getElementById('word-display').innerText = currentWord.en;
+
+      // 6つの選択肢作成（正解1つ＋他の単語から不正解5つ）
+      const otherWords = WORD_DATABASE.filter(w => w.en !== currentWord.en);
+      const shuffledOthers = shuffle(otherWords);
+      const wrongOptions = shuffledOthers.slice(0, 5).map(w => w.ja);
+
+      const allOptions = shuffle([currentWord.ja, ...wrongOptions]);
+
+      // 選択肢ボタンのレンダリング
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      allOptions.forEach(optionText => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = optionText;
+        btn.onclick = () => checkAnswer(btn, optionText, currentWord.ja);
+        container.appendChild(btn);
+      });
+    }
+
+    // 回答判定
+    function checkAnswer(selectedBtn, selectedText, correctText) {
+      if (!isAnswering) return;
+      isAnswering = false;
+
+      const buttons = document.querySelectorAll('.option-btn');
+      const feedback = document.getElementById('feedback');
+
+      if (selectedText === correctText) {
+        score++;
+        selectedBtn.classList.add('correct');
+        feedback.innerText = '⭕ 正解！';
+        feedback.classList.add('correct');
+      } else {
+        selectedBtn.classList.add('incorrect');
+        feedback.innerText = `❌ 不正解... 正解: ${correctText}`;
+        feedback.classList.add('incorrect');
+
+        // 正解ボタンを緑色にする
+        buttons.forEach(btn => {
+          if (btn.innerText === correctText) {
+            btn.classList.add('correct');
+          }
+        });
+      }
+
+      // 0.8秒〜1.2秒後に次の問題へ
+      setTimeout(() => {
+        currentIndex++;
+        if (currentIndex < totalQuestions) {
+          showQuestion();
+        } else {
+          showResults();
+        }
+      }, selectedText === correctText ? 700 : 1300);
+    }
+
+    // 結果表示
+    function showResults() {
+      document.getElementById('quiz-screen').classList.add('hide');
+      document.getElementById('result-screen').classList.remove('hide');
+
+      document.getElementById('score-display').innerText = `${score} / ${totalQuestions}`;
+      const accuracy = Math.round((score / totalQuestions) * 100);
+      document.getElementById('accuracy-display').innerText = `正答率: ${accuracy}%`;
+    }
+
+    // スタート画面に戻る
+    function showStartScreen() {
+      document.getElementById('result-screen').classList.add('hide');
+      document.getElementById('start-screen').classList.remove('hide');
+    }
+  </script>
+</body>
+</html>
